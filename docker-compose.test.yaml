@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    image: treeoapp:test
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.test
+    ports:
+      - '3001:3000'
+    container_name: test-app-container
+    environment:
+      - NODE_ENV=test
+      - TEST_COMMAND=npm run test:e2e
+    env_file:
+      - ./env/test.env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "$$TEST_COMMAND"
+    depends_on:
+      - db
+
+  db:
+    extends:
+      file: ./docker-compose.yaml
+      service: db
+    container_name: test-db-container
+    env_file:
+      - ./env/test.env
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  test_postgres_data:
+# TEST_COMMAND="npm run test" docker compose -f docker-compose.test.yaml up --abort-on-container-exit --remove-orphans

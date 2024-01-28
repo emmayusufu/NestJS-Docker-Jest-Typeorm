@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    image: treeoapp:development
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.development
+    ports:
+      - '3000:3000'
+    container_name: development-app-container
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./env/development.env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+    depends_on:
+      - db
+
+  db:
+    extends:
+      file: ./docker/docker-compose.yaml
+      service: db
+    container_name: development-db-container
+    env_file:
+      - ./env/development.env
