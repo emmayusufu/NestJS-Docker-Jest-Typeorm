@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '../database/schemas/user.model';
 import { UserLoginDto } from './dtos/user-login.dto';
 import { UserRegistrationDto } from './dtos/user-registration.dto';
+import { Message } from '../database/schemas/message.model';
+import { Post } from '../database/schemas/post.model';
 
 /**
  * Service responsible for handling user-related operations.
@@ -30,14 +32,12 @@ export class UsersService {
    * @throws Error if a user with similar email address or username already exists, or if the user registration fails.
    */
   async createUser(userRegistrationDto: UserRegistrationDto) {
-    // Hash the password
     const saltOrRounds = 10;
     const password = userRegistrationDto.password;
     const hash = await bcrypt.hash(password, saltOrRounds);
 
     userRegistrationDto.password = hash;
 
-    // Check if a user with similar email address or username already exists
     const existingUser = await this.userModel.findOne({
       where: {
         [Op.or]: [
@@ -54,11 +54,34 @@ export class UsersService {
     }
 
     try {
-      // Register the new user
       return await this.userModel.create(userRegistrationDto);
     } catch (error) {
       throw new Error('Failed to register user');
     }
+  }
+
+  /**
+   * Returns user credentials based on the id
+   * @param id - The id of the user
+   * @returns The user credentials
+   * @throws Error if the user is not found
+   * */
+
+  async getUserCredentials(id: string) {
+    const user = await this.userModel.findByPk(id, {
+      include: [
+        {
+          model: Message,
+        },
+        {
+          model: Post,
+        },
+      ],
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   }
 
   /**
@@ -83,7 +106,6 @@ export class UsersService {
       throw new Error('Either emailAddress or username must be provided');
     }
 
-    // Find the user with the provided email address or username
     const existingUser = await this.userModel.findOne({
       where: filter,
     });
@@ -92,7 +114,6 @@ export class UsersService {
       throw new Error('User with credentials not found');
     }
 
-    // Check if the provided password is valid
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password,
@@ -144,7 +165,6 @@ export class UsersService {
    */
   async deleteUser(username: string) {
     try {
-      // First check if the user exists
       const record = await this.userModel.findOne({ where: { username } });
 
       if (!record) {

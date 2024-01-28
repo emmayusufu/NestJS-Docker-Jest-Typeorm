@@ -220,7 +220,6 @@ export class PostsService {
         paranoid: false,
       });
 
-      // If the record was deleted more than 24 hours ago, it cannot be restored.
       if (record.deletedAt < twentyFourHoursAgo) {
         throw new InternalServerErrorException(
           `Cannot restore post with ID ${id} because it was deleted more than 24 hours ago`,
@@ -235,7 +234,7 @@ export class PostsService {
         throw error;
       }
       throw new InternalServerErrorException(
-        `Failed to restore post with ID ${error}`,
+        `Failed to restore post with ID ${id}`,
       );
     }
   }

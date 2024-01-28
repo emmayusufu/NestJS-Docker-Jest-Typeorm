@@ -47,12 +47,10 @@ describe('MessagesService', () => {
         expiresAt: new Date(new Date().getTime() + 3600 * 1000),
       };
 
-      // Mock the create method
       messageModel.create.mockResolvedValue(createdMessage);
 
       const result = await service.create(dto);
 
-      // Use expect.any(Date) for expiresAt
       expect(messageModel.create).toHaveBeenCalledWith({
         content: 'Test message',
         expiresAt: expect.any(Date),
@@ -144,13 +142,11 @@ describe('MessagesService', () => {
         content: 'Updated message',
       };
 
-      // Mock the update and findOne methods
       messageModel.update.mockResolvedValue([1]);
       messageModel.findOne.mockResolvedValue(updatedMessage);
 
       const result = await service.update(id, dto);
 
-      // Use expect.any(Date) for expiresAt and only check where
       expect(messageModel.update).toHaveBeenCalledWith(
         {
           content: 'Updated message',

@@ -76,7 +76,6 @@ describe('PostsController', () => {
 
       const result = await controller.create(files, createPostDto);
 
-      // Assert
       expect(result).toBe(createdPost);
       expect(service.create).toHaveBeenCalledWith(createPostDto, files);
     });
@@ -138,7 +137,6 @@ describe('PostsController', () => {
 
       const result = await controller.findByUser(request);
 
-      // Assert
       expect(result).toBe(userPosts);
       expect(service.findAllByUser).toHaveBeenCalledWith(request.user.sub);
     });
@@ -160,7 +158,6 @@ describe('PostsController', () => {
 
       const result = await controller.findOne(id, request);
 
-      // Assert
       expect(result).toBe(post);
       expect(service.findOne).toHaveBeenCalledWith(id, request.user);
     });
@@ -186,7 +183,6 @@ describe('PostsController', () => {
 
       const result = await controller.update(id, updatePostDto);
 
-      // Assert
       expect(result).toBe(updatedPost);
       expect(service.update).toHaveBeenCalledWith(id, updatePostDto);
     });
@@ -226,7 +222,6 @@ describe('PostsController', () => {
 
       const result = await controller.updatePrivate(id, updatePostPrivacyDto);
 
-      // Assert
       expect(result).toBe(updatedPost);
       expect(service.updatePrivateStatus).toHaveBeenCalledWith(
         id,

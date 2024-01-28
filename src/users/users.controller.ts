@@ -6,10 +6,13 @@ import {
   HttpStatus,
   Param,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { UserRegistrationDto } from './dtos/user-registration.dto';
 import { UserLoginDto } from './dtos/user-login.dto';
 import { UsersService } from './users.service';
+import { UserAuthGuard } from './users.guard';
 
 /**
  * Controller responsible for handling user-related operations.
@@ -37,6 +40,18 @@ export class UsersController {
   @Post('/login')
   login(@Body() userLoginDto: UserLoginDto) {
     return this.userService.loginUser(userLoginDto);
+  }
+
+  /**
+   * Returns the user credentials based on the user ID.
+   * @param id - The user ID.
+   * @returns The user credentials.
+   * */
+  @UseGuards(UserAuthGuard)
+  @Get('/credentials')
+  getUserCredentials(@Request() req) {
+    const { sub } = req.user;
+    return this.userService.getUserCredentials(sub);
   }
 
   /**

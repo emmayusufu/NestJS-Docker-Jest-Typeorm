@@ -22,7 +22,7 @@ services:
 
   db:
     extends:
-      file: ./docker/docker-compose.yaml
+      file: ./docker-compose.yaml
       service: db
     container_name: development-db-container
     env_file:

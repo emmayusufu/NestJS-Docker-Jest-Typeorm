@@ -4,12 +4,16 @@ import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
 
 import { AppModule } from '../src/app.module';
+import { CreatePostDto } from '../src/posts/dtos/create-post.dto';
+import { Post } from '../src/database/schemas/post.model';
 import { UserRegistrationDto } from '../src/users/dtos/user-registration.dto';
 import { User } from '../src/database/schemas/user.model';
 
-describe('MessagesController (e2e)', () => {
+describe('PostsController (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
+  let post: Post;
+
   let user: User;
 
   const userDto: UserRegistrationDto = {
@@ -18,6 +22,18 @@ describe('MessagesController (e2e)', () => {
     password: faker.internet.password() + faker.internet.password(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
+  };
+
+  const createPostDto: CreatePostDto = {
+    title: faker.lorem.sentence(),
+    body: faker.lorem.paragraphs(),
+    tags: faker.lorem.words().split(' '),
+    userId: 'random',
+    isPrivate: faker.datatype.boolean(),
+    metadata: {
+      createdAt: faker.date.recent(),
+      updatedAt: faker.date.recent(),
+    },
   };
 
   beforeAll(async () => {
@@ -69,89 +85,69 @@ describe('MessagesController (e2e)', () => {
     user = response.body;
   });
 
-  it('POST /messages', async () => {
-    const userId = user.id;
-
-    const createMessageDto = {
-      content: 'Test message',
-      userId,
-      expiresIn: 3600,
-    };
-
-    return request(app.getHttpServer())
-      .post('/messages')
+  it('/posts (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/posts')
       .set('Authorization', `Bearer ${authToken}`)
-      .send(createMessageDto)
-      .expect(HttpStatus.CREATED)
-      .then((response) => {
-        expect(response.body).toEqual({
-          id: expect.any(String),
-          content: createMessageDto.content,
-          userId: createMessageDto.userId,
-          expiresAt: expect.any(String),
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        });
-      });
+      .field('title', createPostDto.title)
+      .field('content', createPostDto.body)
+      .field('userId', user.id)
+      .expect(HttpStatus.CREATED);
+
+    post = response.body;
+    expect(post).toHaveProperty('id');
+    expect(post.title).toEqual(createPostDto.title);
   });
 
-  it('GET /messages', async () => {
+  it('/posts (GET)', async () => {
     const response = await request(app.getHttpServer())
-      .get('/messages')
+      .get('/posts')
       .expect(HttpStatus.OK);
+
     expect(Array.isArray(response.body)).toBe(true);
   });
 
-  it('PUT /messages/:id', async () => {
-    const createMessageDto = {
-      content: 'Test message',
-      userId: user.id,
-      expiresIn: 3600,
-    };
-
+  it('/posts/user (GET)', async () => {
     const response = await request(app.getHttpServer())
-      .post('/messages')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send(createMessageDto)
-      .expect(HttpStatus.CREATED);
-
-    const messageId = response.body.id;
-
-    const updateMessageDto = {
-      content: 'Updated message',
-      expiresIn: 7200,
-    };
-
-    return request(app.getHttpServer())
-      .put(`/messages/${messageId}`)
-      .set('Authorization', `Bearer ${authToken}`)
-      .send(updateMessageDto)
-      .expect(HttpStatus.OK)
-      .then((response) => {
-        expect(response.body.content).toEqual(updateMessageDto.content);
-      });
-  });
-
-  it('DELETE /messages/:id', async () => {
-    const createMessageDto = {
-      content: 'Test message',
-      userId: user.id,
-      expiresIn: 3600,
-    };
-
-    const data = await request(app.getHttpServer())
-      .post('/messages')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send(createMessageDto)
-      .expect(HttpStatus.CREATED);
-
-    const messageId = data.body.id;
-
-    const response = await request(app.getHttpServer())
-      .delete(`/messages/${messageId}`)
+      .get('/posts/user')
       .set('Authorization', `Bearer ${authToken}`)
       .expect(HttpStatus.OK);
 
-    expect(response.body.deleted).toEqual(true);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  it('/posts/:id (GET)', async () => {
+    const postId = post.id;
+    const response = await request(app.getHttpServer())
+      .get(`/posts/${postId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(HttpStatus.OK);
+
+    expect(response.body.id).toEqual(postId);
+  });
+
+  //   it('/posts/:id (PUT)', async () => {
+  //     const updatePostDto: UpdatePostDto = {
+  //       title: 'Updated Title',
+  //       body: 'Updated content',
+  //       userId: user.id,
+  //     };
+  //     const postId = post.id;
+
+  //     const response = await request(app.getHttpServer())
+  //       .put(`/posts/${postId}`)
+  //       .set('Authorization', `Bearer ${authToken}`)
+  //       .send(updatePostDto)
+  //       .expect(HttpStatus.OK);
+
+  //     expect(response.body.title).toEqual(updatePostDto.title);
+  //   });
+
+  it('/posts/:id (DELETE)', async () => {
+    const postId = post.id;
+    await request(app.getHttpServer())
+      .delete(`/posts/${postId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(HttpStatus.OK);
   });
 });

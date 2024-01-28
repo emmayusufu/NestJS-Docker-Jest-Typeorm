@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
-import TransportStream from 'winston-transport'; // Import TransportStream
+import TransportStream from 'winston-transport';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -14,7 +14,6 @@ const levels = () => {
   return winston.config.npm.levels;
 };
 
-// Define log format
 const logFormat = winston.format.printf(
   ({ timestamp, level, message }) => `${timestamp}  ${level}: ${message}`,
 );

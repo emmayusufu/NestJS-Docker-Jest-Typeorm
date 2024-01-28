@@ -60,7 +60,6 @@ describe('UsersController', () => {
         .spyOn(usersService, 'createUser')
         .mockResolvedValue(mockUser as User);
 
-      // Call the registration method on the controller
       const result = await controller.registration(userRegistrationDto);
 
       const expectedResult = {

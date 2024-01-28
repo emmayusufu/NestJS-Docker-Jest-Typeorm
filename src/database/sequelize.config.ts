@@ -16,5 +16,3 @@ export const sequelizeOptions: SequelizeModuleOptions = {
   autoLoadModels: true,
   synchronize: true,
 };
-
-// __dirname + '/schemas/*.model.ts'

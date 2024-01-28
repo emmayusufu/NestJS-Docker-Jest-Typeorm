@@ -171,13 +171,12 @@ describe('UsersService', () => {
       };
 
       const existingUserMock: Partial<User> = {
-        id: '1', // Assuming the ID is a string; adjust the type as necessary for your model
+        id: '1',
         emailAddress: 'test@example.com',
         username: 'testuser',
         password: 'hashedPassword',
         firstName: 'Test',
         lastName: 'User',
-        // You can include mock implementations of methods if your service uses them
       };
 
       jest
