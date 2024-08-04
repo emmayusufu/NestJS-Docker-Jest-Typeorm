@@ -1,8 +1,7 @@
-# Treeo Application - Development & Testing
-
+# NestJS Docker Jest and Typeorm application
 ### Pre-requisites:
 
-Before you get started, ensure you have Docker installed on your machine. D If Docker is not installed, download and install it from the official [Docker website](https://docs.docker.com/get-docker/).
+Before you get started, ensure you have Docker installed on your machine. If Docker is not installed, download and install it from the official [Docker website](https://docs.docker.com/get-docker/).
 
 ### Installation & Running the Application:
 
